@@ -3,29 +3,20 @@ package com.voyager.opt.utils;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CVRPInstanceReader {
 
-  public static void main(String[] args) {
-    String fileName = "/Users/klian/dev/books/approaching-vrp-java/data/cvrp/P/P-n20-k2.vrp"; // Change to your file name
-
-    try {
-      CVRPLIBInstance instance = parseCVRPLIBInstance(fileName);
-      System.out.println(instance); // Print or process the parsed instance
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  public static CVRPLIBInstance parseCVRPLIBInstance(String fileName) throws IOException {
+  public static CVRPLIBInstance parseInstance(String fileName) {
     List<String> lines = readLines(fileName);
+    if (lines.isEmpty()) {
+      return CVRPLIBInstance.invalidInstance;
+    }
+
     String name;
     int numCustomers;
     int capacity;
+    String edgeWeightType;
     Map<Integer, int[]> coordinates = new HashMap<>();
     Map<Integer, Integer> demands = new HashMap<>();
     int depot;
@@ -38,6 +29,11 @@ public class CVRPInstanceReader {
     line = lines.get(idx);
     numCustomers = Integer.parseInt(line.split(":")[1].trim());
     System.out.println("dimension: " + numCustomers);
+
+    idx = 4;
+    line = lines.get(idx);
+    edgeWeightType = line.split(":")[1].trim();
+    System.out.println("edge weight type: " + edgeWeightType);
 
     idx = 5;
     line = lines.get(idx);
@@ -67,17 +63,30 @@ public class CVRPInstanceReader {
     depot = Integer.parseInt(lines.get(idx).trim());
     System.out.println("depot: " + depot);
 
-    return new CVRPLIBInstance(name, numCustomers, capacity, coordinates, demands, depot);
+    return CVRPLIBInstance.builder()
+      .name(name)
+      .numCustomers(numCustomers)
+      .capacity(capacity)
+      .edgeWeightType(edgeWeightType)
+      .coordinates(coordinates)
+      .demands(demands)
+      .depot(depot)
+      .build();
   }
 
-  private static List<String> readLines(String fileName) throws IOException {
-    List<String> lines = new ArrayList<>();
-    BufferedReader reader = new BufferedReader(new FileReader(fileName));
-    String line;
-    while ((line = reader.readLine()) != null) {
-      lines.add(line);
+  private static List<String> readLines(String fileName) {
+    try {
+      List<String> lines = new ArrayList<>();
+      BufferedReader reader = new BufferedReader(new FileReader(fileName));
+      String line;
+      while ((line = reader.readLine()) != null) {
+        lines.add(line);
+      }
+      reader.close();
+      return lines;
+    } catch (IOException e) {
+      e.printStackTrace();
     }
-    reader.close();
-    return lines;
+    return Collections.emptyList();
   }
 }
