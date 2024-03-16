@@ -14,7 +14,7 @@ public class CVRPInstanceReader {
     }
 
     String name;
-    int numCustomers;
+    int numNodes;
     int capacity;
     String edgeWeightType;
     Map<Integer, int[]> coordinates = new HashMap<>();
@@ -27,45 +27,41 @@ public class CVRPInstanceReader {
 
     idx = 3;
     line = lines.get(idx);
-    numCustomers = Integer.parseInt(line.split(":")[1].trim());
-    System.out.println("dimension: " + numCustomers);
+    numNodes = Integer.parseInt(line.split(":")[1].trim());
 
     idx = 4;
     line = lines.get(idx);
     edgeWeightType = line.split(":")[1].trim();
-    System.out.println("edge weight type: " + edgeWeightType);
 
     idx = 5;
     line = lines.get(idx);
     capacity = Integer.parseInt(line.split(":")[1].trim());
 
     idx = 7;
-    for (int i = idx; i < idx + numCustomers; i++) {
+    for (int i = idx; i < idx + numNodes; i++) {
       String[] parts = lines.get(i).trim().split("\\s+");
       int id = Integer.parseInt(parts[0]);
       int x = Integer.parseInt(parts[1]);
       int y = Integer.parseInt(parts[2]);
       coordinates.put(id, new int[]{x, y});
-      System.out.println("id: " + id + ", x: " + x + ", y: " + y);
     }
 
-    idx += numCustomers + 1;
+    idx += numNodes + 1;
     System.out.println("idx: " + idx);
-    for (int i = idx; i < idx + numCustomers; i++) {
+    for (int i = idx; i < idx + numNodes; i++) {
       String[] parts = lines.get(i).trim().split("\\s+");
       int id = Integer.parseInt(parts[0]);
       int demand = Integer.parseInt(parts[1]);
       demands.put(id, demand);
-      System.out.println("id: " + id + ", demand: " + demand);
     }
 
-    idx += numCustomers + 1;
+    idx += numNodes + 1;
     depot = Integer.parseInt(lines.get(idx).trim());
     System.out.println("depot: " + depot);
 
     return CVRPLIBInstance.builder()
       .name(name)
-      .numCustomers(numCustomers)
+      .numNodes(numNodes)
       .capacity(capacity)
       .edgeWeightType(edgeWeightType)
       .coordinates(coordinates)
